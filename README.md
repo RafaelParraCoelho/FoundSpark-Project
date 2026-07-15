@@ -52,7 +52,7 @@ A price-tracking platform for Brazilian consumers. FoundSpark monitors prices fo
                                     └──────────────────┘
 ```
 
-Collectors run on a schedule (EventBridge → Lambda), fetch prices from retailer sources, and write snapshots to PostgreSQL. The FastAPI backend exposes this data to the frontend.
+Collectors run on a schedule (EventBridge → Lambda), fetch prices from Kabum product pages, and write snapshots to PostgreSQL. The FastAPI backend exposes this data to the frontend.
 
 ## Getting Started
 
@@ -108,7 +108,7 @@ Collectors run on a schedule (EventBridge → Lambda), fetch prices from retaile
 | `POSTGRES_USER`| Local DB username                    | `postgres`                                                   |
 | `POSTGRES_PASSWORD` | Local DB password               | `postgres`                                                   |
 | `POSTGRES_DB`  | Local DB name                        | `pricetracker`                                               |
-| `SEARCH_TERMS` | Terms passed to the collector        | `playstation 5`                                              |
+| `KABUM_URLS`   | Comma-separated Kabum product page URLs | `https://www.kabum.com.br/produto/934759/console-sony-playstation-5` |
 
 > See `.env.example` for the full, up-to-date list.
 
@@ -118,7 +118,8 @@ Collectors run on a schedule (EventBridge → Lambda), fetch prices from retaile
 | ------ | ----------- | ----------------------------- |
 | GET    | `/health`   | Health check                  |
 | GET    | `/db-check` | Database connectivity check   |
-| GET    | `/products` | List tracked products (WIP)   |
+| GET    | `/products`         | List products with latest price |
+| GET    | `/products/{id}/history` | Price history for a product     |
 
 Interactive docs available at `http://localhost:8000/docs` when running.
 
@@ -150,7 +151,7 @@ docker build -t price-collector .
 
 docker run -p 9000:8080 \
   -e DATABASE_URL=postgresql://postgres:postgres@host.docker.internal:5432/pricetracker \
-  -e SEARCH_TERMS="playstation 5" \
+  -e KABUM_URLS="https://www.kabum.com.br/produto/934759/console-sony-playstation-5" \
   price-collector
 
 curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
@@ -160,26 +161,29 @@ curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d
 
 ```
 FoundSpark/
-├── app/                 # FastAPI backend
-│   ├── main.py
-│   ├── models.py
-│   └── routers/
+├── backend/             # FastAPI backend
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   └── app/
+│       └── main.py
 ├── lambda/              # Price collector (container image)
 │   ├── Dockerfile
-│   └── handler.py
+│   ├── handler.py
+│   ├── requirements.txt
+│   └── README.md
 ├── frontend/            # React + TypeScript (planned)
 ├── docker-compose.yml
 ├── .env.example
-└── README.md
+├── AGENTS.md
+├── README.md
+└── .gitignore
 ```
-
-> Tree is illustrative — update as the project evolves.
 
 ## Roadmap
 
 - [x] Local MVP scaffold (Docker, FastAPI, Postgres)
-- [x] First collector (Mercado Livre API → Lambda-ready handler)
-- [ ] Additional console retailers (Kabum, Amazon BR)
+- [x] First collector (Kabum product page scraping → Lambda-ready handler)
+- [ ] Additional console retailers (Amazon BR)
 - [ ] Flight data source
 - [ ] Frontend (React + TypeScript)
 - [ ] Deploy to AWS free tier
