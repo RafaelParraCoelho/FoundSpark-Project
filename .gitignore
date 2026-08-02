@@ -21,6 +21,10 @@ venv/
 *.swo
 *~
 
+# AI Agent Skills (local only)
+.agents/
+.roo/
+
 # OS
 .DS_Store
 Thumbs.db
@@ -36,3 +40,7 @@ docker-compose.override.yml
 .pytest_cache/
 .coverage
 htmlcov/
+# AI Agent Skills (local only)
+.agents/
+.roo/
+skills-lock.json
