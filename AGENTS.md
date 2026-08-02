@@ -8,7 +8,7 @@ Guidance for AI coding agents (Claude Code, Cursor, etc.) working on this reposi
 
 ## Current phase
 
-Building the local MVP: one working pipeline (Mercado Livre API → Postgres → FastAPI), before adding more scrapers or the frontend. See "Roadmap" below for what comes next — don't jump ahead to later phases unless asked.
+Building the local MVP: Kabum collector is working, Amazon BR and flight collectors are implemented. Frontend is next. See "Roadmap" below for what comes next — don't jump ahead to later phases unless asked.
 
 ## Stack
 
@@ -22,7 +22,7 @@ Building the local MVP: one working pipeline (Mercado Livre API → Postgres →
 ## Repo layout
 
 ```
-price-tracker/
+FoundSpark-Project/
 ├── docker-compose.yml       # local dev: db + api + adminer
 ├── .env.example             # copy to .env, never commit .env
 ├── backend/
@@ -31,9 +31,14 @@ price-tracker/
 │   └── app/
 │       └── main.py          # FastAPI app
 └── lambda/
-    ├── Dockerfile            # Lambda container image
-    ├── handler.py            # scheduled price collector
+    ├── Dockerfile            # Kabum collector (container image)
+    ├── amazon.Dockerfile     # Amazon BR collector (Playwright)
+    ├── flight.Dockerfile     # Flight collector (Kiwi.com API)
+    ├── handler.py            # Kabum price collector
+    ├── amazon_handler.py     # Amazon BR price collector
+    ├── flight_handler.py     # Flight price collector
     ├── requirements.txt
+    ├── requirements-amazon.txt
     └── README.md             # deploy steps
 ```
 
@@ -57,14 +62,14 @@ CREATE TABLE price_snapshots (
 );
 ```
 
-Both `backend/app` and `lambda/handler.py` read/write this schema. If you change one, update the other and this file.
+Both `backend/app` and all `lambda/*.py` handlers read/write this schema. If you change one, update the others and this file.
 
 ## Conventions
 
 - Prices are always `NUMERIC` in BRL, column name `price_brl` — never float, never another currency.
 - Every collected item records its `source` so we know which site/API it came from.
 - Secrets and connection strings live in environment variables only (`.env` locally, Lambda/EC2 env vars in prod). Never hard-code credentials, never commit `.env`.
-- New scrapers go in `lambda/` as separate handler files if they get complex enough to warrant it — don't cram unrelated sources into one function once it grows.
+New scrapers go in `lambda/` as separate handler files (e.g., `handler.py`, `amazon_handler.py`, `flight_handler.py`) — don't cram unrelated sources into one function once it grows.
 - Respect each source's `robots.txt` and rate limits. Don't add aggressive polling (this is a personal project checked a few times a day, not a real-time feed).
 - Keep Python functions small and typed (type hints expected on new functions).
 
@@ -78,19 +83,27 @@ docker compose up --build
 curl http://localhost:8000/health
 curl http://localhost:8000/db-check
 
-# test the Lambda collector locally before deploying
+# test Kabum collector locally
 cd lambda
 docker build -t price-collector .
-docker run -p 9000:8080 -e DATABASE_URL=... -e SEARCH_TERMS="playstation 5" price-collector
+docker run -p 9000:8080 -e DATABASE_URL=... -e KABUM_URLS="https://www.kabum.com.br/produto/934759" price-collector
 curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
+
+# test Amazon BR collector
+docker build -f amazon.Dockerfile -t amazon-collector .
+docker run -p 9001:8080 -e DATABASE_URL=... -e AMAZON_URLS="https://www.amazon.com.br/dp/B0DFMJQ7VH" amazon-collector
+
+# test flight collector
+docker build -f flight.Dockerfile -t flight-collector .
+docker run -p 9002:8080 -e DATABASE_URL=... -e KIWI_API_KEY=... -e FLIGHT_ROUTES="GRU-REC" flight-collector
 ```
 
 ## Roadmap
 
 - [x] Local MVP scaffold (Docker, FastAPI, Postgres)
-- [x] First collector (Mercado Livre API → Lambda-ready handler)
-- [ ] Additional console retailers (scraping — Kabum, Amazon BR)
-- [ ] Flight data source (Amadeus self-service is being decommissioned July 2026 — need an alternative: scraping or another API)
+- [x] First collector (Kabum product page scraping → Lambda-ready handler)
+- [x] Amazon BR collector (Playwright headless browser → Lambda-ready handler)
+- [x] Flight data source (Kiwi.com Tequila API → Lambda-ready handler)
 - [ ] Frontend (React + TS): search, filters, price-history chart
 - [ ] Deploy to AWS free tier (EC2 + RDS + Lambda + EventBridge), with a billing alarm
 - [ ] Public GitHub repo with README + CI
@@ -103,7 +116,8 @@ curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d
 
 ## Open decisions
 
-- Flight data source not finalized.
 - Whether scraped sites need headless-browser rendering (Playwright) vs. plain HTML parsing (BeautifulSoup) is being evaluated per-site — and each site's `robots.txt` needs to be checked before scraping it, the same way Mercado Livre's search pages turned out to be off-limits.
+- Amazon BR collector requires Playwright (~50MB+ image). Test locally before deploying to Lambda.
+- Kiwi.com Tequila API free tier: 1,000 requests/month. Monitor usage.
 
 When in doubt about a decision above, ask rather than assume.
