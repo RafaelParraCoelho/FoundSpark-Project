@@ -52,7 +52,12 @@ A price-tracking platform for Brazilian consumers. FoundSpark monitors prices fo
                                     └──────────────────┘
 ```
 
-Collectors run on a schedule (EventBridge → Lambda), fetch prices from Kabum product pages, and write snapshots to PostgreSQL. The FastAPI backend exposes this data to the frontend.
+Collectors run on a schedule (EventBridge → Lambda), fetch prices from various Brazilian retailers and flight APIs, and write snapshots to PostgreSQL. The FastAPI backend exposes this data to the frontend.
+
+**Data Sources:**
+- **Kabum**: Scrapes individual product pages using HTTP requests + BeautifulSoup
+- **Amazon BR**: Scrapes product pages using Playwright (headless browser) to bypass bot detection
+- **Flights**: Calls Kiwi.com Tequila API for flight prices between Brazilian airports
 
 ## Getting Started
 
@@ -109,6 +114,9 @@ Collectors run on a schedule (EventBridge → Lambda), fetch prices from Kabum p
 | `POSTGRES_PASSWORD` | Local DB password               | `postgres`                                                   |
 | `POSTGRES_DB`  | Local DB name                        | `pricetracker`                                               |
 | `KABUM_URLS`   | Comma-separated Kabum product page URLs | `https://www.kabum.com.br/produto/934759/console-sony-playstation-5` |
+| `AMAZON_URLS`  | Comma-separated Amazon BR product URLs | `https://www.amazon.com.br/dp/B0FY6X2XXY` |
+| `KIWI_API_KEY` | Kiwi.com Tequila API key (free at https://tequila.kiwi.com) | — |
+| `FLIGHT_ROUTES` | Comma-separated origin-dest pairs | `GRU-REC,GRU-SSA,GRU-FOR` |
 
 > See `.env.example` for the full, up-to-date list.
 
@@ -143,8 +151,9 @@ CREATE TABLE price_snapshots (
 );
 ```
 
-## Testing the Lambda Collector Locally
+## Testing Collectors Locally
 
+### Kabum collector
 ```bash
 cd lambda
 docker build -t price-collector .
@@ -157,21 +166,58 @@ docker run -p 9000:8080 \
 curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
 ```
 
+### Amazon BR collector (requires Playwright)
+```bash
+cd lambda
+docker build -f amazon.Dockerfile -t amazon-collector .
+
+docker run -p 9001:8080 \
+  -e DATABASE_URL=postgresql://postgres:postgres@host.docker.internal:5432/pricetracker \
+  -e AMAZON_URLS="https://www.amazon.com.br/dp/B0FY6X2XXY" \
+  amazon-collector
+
+curl -XPOST "http://localhost:9001/2015-03-31/functions/function/invocations" -d '{}'
+```
+
+### Flight collector (requires Kiwi.com API key)
+```bash
+cd lambda
+docker build -f flight.Dockerfile -t flight-collector .
+
+docker run -p 9002:8080 \
+  -e DATABASE_URL=postgresql://postgres:postgres@host.docker.internal:5432/pricetracker \
+  -e KIWI_API_KEY=your_api_key_here \
+  -e FLIGHT_ROUTES=GRU-REC,GRU-SSA,GRU-FOR \
+  flight-collector
+
+curl -XPOST "http://localhost:9002/2015-03-31/functions/function/invocations" -d '{}'
+```
+
+### Verify data in API
+```bash
+curl http://localhost:8000/products
+```
+
 ## Project Structure
 
 ```
 FoundSpark/
-├── backend/             # FastAPI backend
+├── backend/                 # FastAPI backend
 │   ├── Dockerfile
 │   ├── requirements.txt
 │   └── app/
 │       └── main.py
-├── lambda/              # Price collector (container image)
-│   ├── Dockerfile
-│   ├── handler.py
+├── lambda/                  # Price collectors (container images)
+│   ├── Dockerfile           # Kabum collector
+│   ├── amazon.Dockerfile    # Amazon BR collector (Playwright)
+│   ├── flight.Dockerfile    # Flight collector (Kiwi API)
+│   ├── handler.py           # Kabum price collector
+│   ├── amazon_handler.py    # Amazon BR price collector
+│   ├── flight_handler.py    # Flight price collector
 │   ├── requirements.txt
+│   ├── requirements-amazon.txt
 │   └── README.md
-├── frontend/            # React + TypeScript (planned)
+├── frontend/                # React + TypeScript (planned)
 ├── docker-compose.yml
 ├── .env.example
 ├── AGENTS.md
@@ -179,12 +225,20 @@ FoundSpark/
 └── .gitignore
 ```
 
+## Data Sources
+
+| Source | Method | What it tracks | Requirements |
+|--------|--------|----------------|--------------|
+| Kabum | HTTP + BeautifulSoup | Console prices | — |
+| Amazon BR | Playwright (headless browser) | Console/game prices | Playwright (~50MB+ image) |
+| Kiwi.com | REST API | Flight prices (BRL) | Free API key (1,000 req/month) |
+
 ## Roadmap
 
 - [x] Local MVP scaffold (Docker, FastAPI, Postgres)
 - [x] First collector (Kabum product page scraping → Lambda-ready handler)
-- [ ] Additional console retailers (Amazon BR)
-- [ ] Flight data source
+- [x] Amazon BR collector (Playwright headless browser → Lambda-ready handler)
+- [x] Flight data source (Kiwi.com Tequila API → Lambda-ready handler)
 - [ ] Frontend (React + TypeScript)
 - [ ] Deploy to AWS free tier
 - [ ] CI/CD pipeline
