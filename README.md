@@ -8,28 +8,39 @@ A price-tracking platform for Brazilian consumers. FoundSpark monitors prices fo
 
 ## Table of Contents
 
+- [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Architecture](#architecture)
 - [Getting Started](#getting-started)
 - [Environment Variables](#environment-variables)
 - [API Endpoints](#api-endpoints)
 - [Database Schema](#database-schema)
-- [Testing the Lambda Collector Locally](#testing-the-lambda-collector-locally)
+- [Testing Collectors Locally](#testing-collectors-locally)
 - [Project Structure](#project-structure)
+- [Data Sources](#data-sources)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
 
+## Features
+
+- **Multi-source price tracking**: Kabum, Amazon BR, and flight prices
+- **Interactive price charts**: Visualize price history over time using Recharts
+- **Product comparison**: See prices from different sources side by side
+- **Price statistics**: Min, max, average prices with variation tracking
+- **Responsive design**: Works on desktop and mobile
+- **Real-time updates**: Data refreshes when collectors run
+
 ## Tech Stack
 
-| Layer      | Technology                                                                                                                                                                                | Version        |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------- |
-| Backend    | [Python](https://www.python.org/downloads/), [FastAPI](https://fastapi.tiangolo.com/), [SQLAlchemy](https://www.sqlalchemy.org/)                                                        | 3.11+ / 0.115.x / 2.0.x |
-| Database   | [PostgreSQL](https://www.postgresql.org/) (Docker locally, [AWS RDS](https://aws.amazon.com/rds/) in prod)                                                                               | 16              |
-| Collectors | [AWS Lambda](https://aws.amazon.com/lambda/) (container image) + [Amazon EventBridge](https://aws.amazon.com/eventbridge/)                                                              | —               |
-| Frontend   | [React](https://react.dev/), [TypeScript](https://www.typescriptlang.org/), [Vite](https://vitejs.dev/) (planned)                                                                        | 18.x / 5.x / 5.x |
-| Cloud      | [AWS](https://aws.amazon.com/) (EC2, RDS, Lambda, EventBridge) — [free tier](https://aws.amazon.com/free/)                                                                               | —               |
-| Local dev  | [Docker Desktop](https://www.docker.com/products/docker-desktop/), [docker-compose](https://docs.docker.com/compose/)                                                                    | Compose v2      |
+| Layer      | Technology                                                                                     | Version              |
+| ---------- | ---------------------------------------------------------------------------------------------- | -------------------- |
+| Frontend   | [React](https://react.dev/), [TypeScript](https://www.typescriptlang.org/), [Vite](https://vitejs.dev/), [Recharts](https://recharts.org/) | 18.x / 5.x / 5.x / 2.x |
+| Backend    | [Python](https://www.python.org/downloads/), [FastAPI](https://fastapi.tiangolo.com/), [SQLAlchemy](https://www.sqlalchemy.org/) | 3.11+ / 0.115.x / 2.0.x |
+| Database   | [PostgreSQL](https://www.postgresql.org/) (Docker locally, [AWS RDS](https://aws.amazon.com/rds/) in prod) | 16                   |
+| Collectors | [AWS Lambda](https://aws.amazon.com/lambda/) (container image) + [Amazon EventBridge](https://aws.amazon.com/eventbridge/) | —                    |
+| Cloud      | [AWS](https://aws.amazon.com/) (EC2, RDS, Lambda, EventBridge) — [free tier](https://aws.amazon.com/free/) | —                    |
+| Local dev  | [Docker Desktop](https://www.docker.com/products/docker-desktop/), [docker-compose](https://docs.docker.com/compose/) | Compose v2           |
 
 > Versions are current targets, not hard requirements — check `requirements.txt` / `package.json` for the exact pinned versions in use.
 
@@ -39,20 +50,21 @@ A price-tracking platform for Brazilian consumers. FoundSpark monitors prices fo
 ┌──────────────┐     schedule      ┌──────────────────┐
 │ EventBridge  │ ────────────────▶ │  Lambda Collector │
 └──────────────┘                   │  (container image)│
-                                    └─────────┬─────────┘
-                                              │ writes
-                                              ▼
+                                   └─────────┬─────────┘
+                                             │ writes
+                                             ▼
 ┌──────────────┐     reads/writes  ┌──────────────────┐
 │   Frontend   │ ◀───────────────▶ │  FastAPI Backend  │
 │ (React + TS) │       REST        └─────────┬─────────┘
-└──────────────┘                              │
-                                               ▼
-                                    ┌──────────────────┐
-                                    │    PostgreSQL     │
-                                    └──────────────────┘
+│  :5173       │                             │
+└──────────────┘                              ▼
+                                   ┌──────────────────┐
+                                   │    PostgreSQL     │
+                                   │       :5432       │
+                                   └──────────────────┘
 ```
 
-Collectors run on a schedule (EventBridge → Lambda), fetch prices from various Brazilian retailers and flight APIs, and write snapshots to PostgreSQL. The FastAPI backend exposes this data to the frontend.
+Collectors run on a schedule (EventBridge → Lambda), fetch prices from various Brazilian retailers and flight APIs, and write snapshots to PostgreSQL. The FastAPI backend exposes this data to the frontend via a REST API with CORS configured for the Vite dev server.
 
 **Data Sources:**
 - **Kabum**: Scrapes individual product pages using HTTP requests + BeautifulSoup
@@ -67,8 +79,8 @@ Collectors run on a schedule (EventBridge → Lambda), fetch prices from various
 | ------------------------------------------------------------------ | ---------------- | -------------------------------- |
 | [Docker Desktop](https://www.docker.com/products/docker-desktop/) | 4.x (Compose v2) | Must be installed and running    |
 | [Git](https://git-scm.com/downloads)                              | 2.x               | —                                 |
-| [Python](https://www.python.org/downloads/) *(optional, non-Docker dev)* | 3.11+     | Only needed if running the backend outside Docker |
-| [Node.js](https://nodejs.org/) *(optional, frontend dev)*         | 20.x LTS          | Only needed once the frontend is scaffolded |
+| [Node.js](https://nodejs.org/)                                     | 20.x LTS          | Required for frontend             |
+| [Python](https://www.python.org/downloads/) *(optional)*           | 3.11+     | Only needed if running the backend outside Docker |
 | [AWS CLI](https://aws.amazon.com/cli/) *(optional, deployment)*   | 2.x               | Needed for Lambda / RDS deploys  |
 
 ### Setup
@@ -103,9 +115,10 @@ Collectors run on a schedule (EventBridge → Lambda), fetch prices from various
    This launches the Vite dev server on port `5173`
 
 5. **Verify it's running**
-   - Backend: `http://localhost:8000/health`
+   - Backend health: `http://localhost:8000/health`
    - Frontend: `http://localhost:5173`
    - Swagger docs: `http://localhost:8000/docs`
+   - Adminer (DB UI): `http://localhost:8080`
 
 6. **Stop the stack**
    ```bash
@@ -213,7 +226,7 @@ FoundSpark/
 │   ├── Dockerfile
 │   ├── requirements.txt
 │   └── app/
-│       └── main.py
+│       └── main.py          # API + CORS middleware
 ├── lambda/                  # Price collectors (container images)
 │   ├── Dockerfile           # Kabum collector
 │   ├── amazon.Dockerfile    # Amazon BR collector (Playwright)
@@ -226,30 +239,32 @@ FoundSpark/
 │   └── README.md
 ├── frontend/                # React + TypeScript frontend
 │   ├── src/
-│   │   ├── api.ts          # API client functions
-│   │   ├── App.tsx         # Main app component
-│   │   ├── components/
-│   │   │   ├── ProductList.tsx
-│   │   │   ├── ProductDetail.tsx
-│   │   │   └── PriceChart.tsx
-│   │   └── index.css
+│   │   ├── api.ts           # API client functions (axios)
+│   │   ├── App.tsx          # Main app component
+│   │   ├── index.css        # Global styles
+│   │   └── components/
+│   │       ├── ProductList.tsx   # Product grid view
+│   │       ├── ProductDetail.tsx # Product detail + history
+│   │       └── PriceChart.tsx    # Interactive price chart
 │   ├── package.json
-│   ├── vite.config.ts
+│   ├── vite.config.ts       # Vite config + API proxy
+│   ├── tsconfig.json
 │   └── .env.example
 ├── docker-compose.yml
+├── .env
 ├── .env.example
+├── .gitignore
 ├── AGENTS.md
-├── README.md
-└── .gitignore
+└── README.md
 ```
 
 ## Data Sources
 
-| Source | Method | What it tracks | Requirements |
-|--------|--------|----------------|--------------|
-| Kabum | HTTP + BeautifulSoup | Console prices | — |
-| Amazon BR | Playwright (headless browser) | Console/game prices | Playwright (~50MB+ image) |
-| Kiwi.com | REST API | Flight prices (BRL) | Free API key (1,000 req/month) |
+| Source    | Method                        | What it tracks       | Requirements                          |
+| --------- | ----------------------------- | -------------------- | ------------------------------------- |
+| Kabum     | HTTP + BeautifulSoup          | Console prices       | —                                     |
+| Amazon BR | Playwright (headless browser) | Console/game prices  | Playwright (~50MB+ Docker image)      |
+| Kiwi.com  | REST API                      | Flight prices (BRL)  | Free API key (1,000 req/month limit)  |
 
 ## Roadmap
 
@@ -257,9 +272,11 @@ FoundSpark/
 - [x] First collector (Kabum product page scraping → Lambda-ready handler)
 - [x] Amazon BR collector (Playwright headless browser → Lambda-ready handler)
 - [x] Flight data source (Kiwi.com Tequila API → Lambda-ready handler)
-- [ ] Frontend (React + TypeScript)
-- [ ] Deploy to AWS free tier
+- [x] Frontend (React + TypeScript) — Product list, price history, charts
+- [x] CORS configured for frontend-backend communication
+- [ ] Deploy to AWS free tier (EC2 + RDS + Lambda + EventBridge)
 - [ ] CI/CD pipeline
+- [ ] Public GitHub repo with README
 
 ## Contributing
 
