@@ -85,7 +85,7 @@ Collectors run on a schedule (EventBridge → Lambda), fetch prices from various
    ```
    Edit `.env` with your local database credentials if needed. See [Environment Variables](#environment-variables) for a full reference.
 
-3. **Start the stack**
+3. **Start the backend stack**
    ```bash
    docker compose up --build
    ```
@@ -94,13 +94,20 @@ Collectors run on a schedule (EventBridge → Lambda), fetch prices from various
    - **FastAPI** on port `8000`
    - **Adminer** (DB admin UI) on port `8080`
 
-4. **Verify it's running**
+4. **Start the frontend** (in a separate terminal)
    ```bash
-   curl http://localhost:8000/health
-   curl http://localhost:8000/db-check
+   cd frontend
+   npm install
+   npm run dev
    ```
+   This launches the Vite dev server on port `5173`
 
-5. **Stop the stack**
+5. **Verify it's running**
+   - Backend: `http://localhost:8000/health`
+   - Frontend: `http://localhost:5173`
+   - Swagger docs: `http://localhost:8000/docs`
+
+6. **Stop the stack**
    ```bash
    docker compose down
    ```
@@ -217,7 +224,18 @@ FoundSpark/
 │   ├── requirements.txt
 │   ├── requirements-amazon.txt
 │   └── README.md
-├── frontend/                # React + TypeScript (planned)
+├── frontend/                # React + TypeScript frontend
+│   ├── src/
+│   │   ├── api.ts          # API client functions
+│   │   ├── App.tsx         # Main app component
+│   │   ├── components/
+│   │   │   ├── ProductList.tsx
+│   │   │   ├── ProductDetail.tsx
+│   │   │   └── PriceChart.tsx
+│   │   └── index.css
+│   ├── package.json
+│   ├── vite.config.ts
+│   └── .env.example
 ├── docker-compose.yml
 ├── .env.example
 ├── AGENTS.md
