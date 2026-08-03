@@ -4,17 +4,21 @@
 
 .back-button {
   background: transparent;
-  border: 1px solid #444;
-  color: #aaa;
-  padding: 0.5rem 1rem;
-  margin-bottom: 1.5rem;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  padding: 0.6rem 1.2rem;
+  margin-bottom: 2rem;
   cursor: pointer;
   transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
 }
 
 .back-button:hover {
-  border-color: #646cff;
-  color: #646cff;
+  border-color: #d4752f;
+  color: #d4752f;
 }
 
 .detail-header {
@@ -22,9 +26,10 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 2rem;
-  margin-bottom: 1.5rem;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
 }
 
@@ -33,13 +38,14 @@
 }
 
 .detail-title-section h1 {
-  margin: 0.75rem 0 0.5rem 0;
+  margin: 0.75rem 0 0.75rem 0;
   font-size: 1.5rem;
-  line-height: 1.3;
+  line-height: 1.4;
+  color: #1a1a1a;
 }
 
 .detail-meta {
-  color: #888;
+  color: #64748b;
   font-size: 0.9rem;
   margin: 0;
 }
@@ -50,125 +56,146 @@
 
 .current-price {
   display: block;
-  font-size: 2rem;
+  font-size: 2.25rem;
   font-weight: 700;
-  color: #4ade80;
+  color: #d4752f;
 }
 
 .price-label {
-  color: #888;
+  color: #64748b;
   font-size: 0.85rem;
 }
 
 .store-link {
-  display: inline-block;
-  margin-bottom: 1.5rem;
-  color: #646cff;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  color: #d4752f;
   text-decoration: none;
   font-size: 0.95rem;
+  font-weight: 500;
+  transition: color 0.2s;
 }
 
 .store-link:hover {
-  text-decoration: underline;
+  color: #c46a28;
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .stat-card {
-  background: rgba(255, 255, 255, 0.05);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
-  padding: 1rem;
+  padding: 1.25rem;
   text-align: center;
 }
 
 .stat-label {
   display: block;
-  color: #888;
-  font-size: 0.85rem;
+  color: #64748b;
+  font-size: 0.8rem;
   margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .stat-value {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #fff;
+  color: #1a1a1a;
 }
 
 .stat-value.min {
-  color: #4ade80;
+  color: #d4752f;
 }
 
 .stat-value.max {
-  color: #f87171;
+  color: #ef4444;
 }
 
 .stat-value.avg {
-  color: #fbbf24;
+  color: #f59e0b;
 }
 
 .chart-section {
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .chart-section h2 {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   font-size: 1.25rem;
+  color: #1a1a1a;
 }
 
 .loading-chart, .error-chart, .empty-chart {
   text-align: center;
   padding: 3rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
-  color: #888;
+  color: #64748b;
 }
 
 .error-chart button {
   margin-top: 1rem;
-  background-color: #646cff;
+  background-color: #d4752f;
   color: white;
+  border: none;
+}
+
+.error-chart button:hover {
+  background-color: #c46a28;
 }
 
 .history-section h2 {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   font-size: 1.25rem;
+  color: #1a1a1a;
 }
 
 .history-table {
   width: 100%;
   border-collapse: collapse;
-  background: rgba(255, 255, 255, 0.05);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
   overflow: hidden;
 }
 
 .history-table th,
 .history-table td {
-  padding: 0.75rem 1rem;
+  padding: 0.875rem 1rem;
   text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .history-table th {
-  background: rgba(255, 255, 255, 0.08);
-  color: #aaa;
+  background: #f8fafc;
+  color: #475569;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.history-table tr:last-child td {
+  border-bottom: none;
 }
 
 .history-table tr:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: #f8fafc;
 }
 
 .price-cell {
   font-weight: 600;
-  color: #4ade80;
+  color: #d4752f;
 }
 
 .variation-cell {
@@ -176,17 +203,17 @@
 }
 
 .variation-cell.up {
-  color: #f87171;
+  color: #ef4444;
 }
 
 .variation-cell.down {
-  color: #4ade80;
+  color: #22c55e;
 }
 
 .no-data {
   text-align: center;
   padding: 2rem;
-  color: #666;
+  color: #94a3b8;
 }
 
 @media (max-width: 768px) {
@@ -199,6 +226,6 @@
   }
   
   .current-price {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
   }
 }

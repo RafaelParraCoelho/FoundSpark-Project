@@ -68,38 +68,38 @@ const PriceChart = ({ data }: PriceChartProps) => {
             bottom: 20,
           }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
           <XAxis
             dataKey="collected_at"
             tickFormatter={formatDate}
-            stroke="#666"
+            stroke="#94a3b8"
             tick={{ fontSize: 12 }}
           />
           <YAxis
             tickFormatter={(value) => `R$ ${value}`}
-            stroke="#666"
+            stroke="#94a3b8"
             tick={{ fontSize: 12 }}
             domain={['dataMin - 50', 'dataMax + 50']}
           />
           <Tooltip content={<CustomTooltip />} />
           <ReferenceLine
             y={avgPrice}
-            stroke="#fbbf24"
+            stroke="#f59e0b"
             strokeDasharray="5 5"
             label={{
               value: `Média: ${formatPrice(avgPrice)}`,
               position: 'right',
-              fill: '#fbbf24',
+              fill: '#f59e0b',
               fontSize: 12,
             }}
           />
           <Line
             type="monotone"
             dataKey="price_brl"
-            stroke="#4ade80"
+            stroke="#d4752f"
             strokeWidth={2}
-            dot={{ fill: '#4ade80', strokeWidth: 2, r: 4 }}
-            activeDot={{ r: 6, fill: '#4ade80' }}
+            dot={{ fill: '#d4752f', strokeWidth: 2, r: 4 }}
+            activeDot={{ r: 6, fill: '#d4752f', stroke: '#ffffff', strokeWidth: 2 }}
           />
         </LineChart>
       </ResponsiveContainer>

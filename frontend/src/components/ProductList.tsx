@@ -44,7 +44,10 @@ const ProductList = ({ products, onSelect }: ProductListProps) => {
 
   return (
     <div className="product-list">
-      <h2>Produtos Monitorados ({products.length})</h2>
+      <div className="section-header">
+        <h2>Produtos Monitorados</h2>
+        <span className="product-count">{products.length} itens</span>
+      </div>
       <div className="products-grid">
         {products.map((product) => {
           const badge = getSourceBadge(product.source);
@@ -72,7 +75,8 @@ const ProductList = ({ products, onSelect }: ProductListProps) => {
                   className="product-link"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  Ver na loja ↗
+                  Ver na loja
+                  <span className="arrow">→</span>
                 </a>
               )}
             </div>
