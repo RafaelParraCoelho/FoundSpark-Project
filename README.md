@@ -33,6 +33,7 @@ A price-tracking platform for Brazilian consumers. FoundSpark monitors prices fo
 
 ## Tech Stack
 
+<<<<<<< HEAD
 | Layer      | Technology                                                                                     | Version              |
 | ---------- | ---------------------------------------------------------------------------------------------- | -------------------- |
 | Frontend   | [React](https://react.dev/), [TypeScript](https://www.typescriptlang.org/), [Vite](https://vitejs.dev/), [Recharts](https://recharts.org/) | 18.x / 5.x / 5.x / 2.x |
@@ -41,6 +42,16 @@ A price-tracking platform for Brazilian consumers. FoundSpark monitors prices fo
 | Collectors | [AWS Lambda](https://aws.amazon.com/lambda/) (container image) + [Amazon EventBridge](https://aws.amazon.com/eventbridge/) | —                    |
 | Cloud      | [AWS](https://aws.amazon.com/) (EC2, RDS, Lambda, EventBridge) — [free tier](https://aws.amazon.com/free/) | —                    |
 | Local dev  | [Docker Desktop](https://www.docker.com/products/docker-desktop/), [docker-compose](https://docs.docker.com/compose/) | Compose v2           |
+=======
+| Layer      | Technology                                                                                                                                                                                | Version        |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------- |
+| Backend    | [Python](https://www.python.org/downloads/), [FastAPI](https://fastapi.tiangolo.com/), [SQLAlchemy](https://www.sqlalchemy.org/)                                                        | 3.11+ / 0.115.x / 2.0.x |
+| Database   | [PostgreSQL](https://www.postgresql.org/) (Docker locally, [AWS RDS](https://aws.amazon.com/rds/) in prod)                                                                               | 16              |
+| Collectors | [AWS Lambda](https://aws.amazon.com/lambda/) (container image) + [Amazon EventBridge](https://aws.amazon.com/eventbridge/)                                                              | —               |
+| Frontend   | [React](https://react.dev/), [TypeScript](https://www.typescriptlang.org/), [Vite](https://vitejs.dev/), [Recharts](https://recharts.org/)                                             | 18.x / 5.x / 5.x / 2.x |
+| Cloud      | [AWS](https://aws.amazon.com/) (EC2, RDS, Lambda, EventBridge) — [free tier](https://aws.amazon.com/free/)                                                                               | —               |
+| Local dev  | [Docker Desktop](https://www.docker.com/products/docker-desktop/), [docker-compose](https://docs.docker.com/compose/)                                                                    | Compose v2      |
+>>>>>>> 44f1db4705f30de3a6658f5a18809b46a4b4b9ed
 
 > Versions are current targets, not hard requirements — check `requirements.txt` / `package.json` for the exact pinned versions in use.
 
@@ -56,11 +67,18 @@ A price-tracking platform for Brazilian consumers. FoundSpark monitors prices fo
 ┌──────────────┐     reads/writes  ┌──────────────────┐
 │   Frontend   │ ◀───────────────▶ │  FastAPI Backend  │
 │ (React + TS) │       REST        └─────────┬─────────┘
+<<<<<<< HEAD
 │  :5173       │                             │
 └──────────────┘                              ▼
                                    ┌──────────────────┐
                                    │    PostgreSQL     │
                                    │       :5432       │
+=======
+└──────────────┘                              │
+                                              ▼
+                                   ┌──────────────────┐
+                                   │    PostgreSQL     │
+>>>>>>> 44f1db4705f30de3a6658f5a18809b46a4b4b9ed
                                    └──────────────────┘
 ```
 
@@ -79,8 +97,13 @@ Collectors run on a schedule (EventBridge → Lambda), fetch prices from various
 | ------------------------------------------------------------------ | ---------------- | -------------------------------- |
 | [Docker Desktop](https://www.docker.com/products/docker-desktop/) | 4.x (Compose v2) | Must be installed and running    |
 | [Git](https://git-scm.com/downloads)                              | 2.x               | —                                 |
+<<<<<<< HEAD
 | [Node.js](https://nodejs.org/)                                     | 20.x LTS          | Required for frontend             |
 | [Python](https://www.python.org/downloads/) *(optional)*           | 3.11+     | Only needed if running the backend outside Docker |
+=======
+| [Python](https://www.python.org/downloads/) *(optional, non-Docker dev)* | 3.11+     | Only needed if running the backend outside Docker |
+| [Node.js](https://nodejs.org/)                                    | 20.x LTS          | Required for frontend dev        |
+>>>>>>> 44f1db4705f30de3a6658f5a18809b46a4b4b9ed
 | [AWS CLI](https://aws.amazon.com/cli/) *(optional, deployment)*   | 2.x               | Needed for Lambda / RDS deploys  |
 
 ### Setup
@@ -239,6 +262,7 @@ FoundSpark/
 │   └── README.md
 ├── frontend/                # React + TypeScript frontend
 │   ├── src/
+<<<<<<< HEAD
 │   │   ├── api.ts           # API client functions (axios)
 │   │   ├── App.tsx          # Main app component
 │   │   ├── index.css        # Global styles
@@ -249,6 +273,24 @@ FoundSpark/
 │   ├── package.json
 │   ├── vite.config.ts       # Vite config + API proxy
 │   ├── tsconfig.json
+=======
+│   │   ├── api.ts           # API client functions
+│   │   ├── App.tsx          # Main app component
+│   │   ├── App.css          # Global styles + layout
+│   │   ├── index.css        # Base styles + reset
+│   │   ├── main.tsx         # React entry point
+│   │   └── components/
+│   │       ├── ProductList.tsx    # Product grid view
+│   │       ├── ProductList.css
+│   │       ├── ProductDetail.tsx  # Product detail + price history
+│   │       ├── ProductDetail.css
+│   │       ├── PriceChart.tsx     # Price history chart (Recharts)
+│   │       └── PriceChart.css
+│   ├── index.html
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── vite.config.ts
+>>>>>>> 44f1db4705f30de3a6658f5a18809b46a4b4b9ed
 │   └── .env.example
 ├── docker-compose.yml
 ├── .env
@@ -266,17 +308,47 @@ FoundSpark/
 | Amazon BR | Playwright (headless browser) | Console/game prices  | Playwright (~50MB+ Docker image)      |
 | Kiwi.com  | REST API                      | Flight prices (BRL)  | Free API key (1,000 req/month limit)  |
 
+## Frontend
+
+The frontend is a single-page React app with:
+
+- **Dark navbar** with sticky positioning
+- **Hero section** with call-to-action
+- **Stats bar** showing monitored product count, sources, and categories
+- **Product grid** with cards displaying source, price, category, and store link
+- **Product detail view** with price history chart (Recharts), min/max/avg stats, and recent price table
+- **About section** explaining how the platform works
+- **Alerts preview** (coming soon)
+- **Structured footer** with product links, data sources, and project info
+
+Color palette: warm off-white background (`#fafbfc`), dark sections (`#1a1a1a`), soft orange accent (`#d4752f`).
+
+```bash
+# Start frontend dev server
+cd frontend
+npm install
+npm run dev
+```
+
 ## Roadmap
 
 - [x] Local MVP scaffold (Docker, FastAPI, Postgres)
 - [x] First collector (Kabum product page scraping → Lambda-ready handler)
 - [x] Amazon BR collector (Playwright headless browser → Lambda-ready handler)
 - [x] Flight data source (Kiwi.com Tequila API → Lambda-ready handler)
+<<<<<<< HEAD
 - [x] Frontend (React + TypeScript) — Product list, price history, charts
 - [x] CORS configured for frontend-backend communication
 - [ ] Deploy to AWS free tier (EC2 + RDS + Lambda + EventBridge)
 - [ ] CI/CD pipeline
 - [ ] Public GitHub repo with README
+=======
+- [x] Frontend (React + TypeScript) — homepage, product grid, detail view, price charts
+- [ ] Deploy to AWS free tier (EC2 + RDS + Lambda + EventBridge)
+- [ ] CI/CD pipeline
+- [ ] Price alerts (email/push notifications)
+- [ ] User authentication and saved watches
+>>>>>>> 44f1db4705f30de3a6658f5a18809b46a4b4b9ed
 
 ## Contributing
 
