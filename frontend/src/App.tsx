@@ -21,7 +21,7 @@ function App() {
       setProducts(data);
       setError(null);
     } catch (err) {
-      setError('Erro ao carregar produtos. Verifique se o backend está rodando.');
+      setError('Erro ao carregar produtos. Verifique se o backend esta rodando.');
       console.error('Error fetching products:', err);
     } finally {
       setLoading(false);
@@ -54,7 +54,6 @@ function App() {
         <nav className="navbar">
           <div className="navbar-inner">
             <div className="navbar-brand">
-              <span className="logo-icon"></span>
               <span className="logo-text">FoundSpark</span>
             </div>
             <div className="navbar-nav">
@@ -78,7 +77,6 @@ function App() {
         <nav className="navbar">
           <div className="navbar-inner">
             <div className="navbar-brand">
-              <span className="logo-icon"></span>
               <span className="logo-text">FoundSpark</span>
             </div>
             <div className="navbar-nav">
@@ -102,7 +100,6 @@ function App() {
       <nav className="navbar">
         <div className="navbar-inner">
           <div className="navbar-brand">
-            <span className="logo-icon"></span>
             <span className="logo-text">FoundSpark</span>
           </div>
           <div className="navbar-nav">
@@ -172,23 +169,14 @@ function App() {
                 </div>
                 <div className="about-features">
                   <div className="feature-card">
-                    <div className="feature-icon">
-                      <span></span>
-                    </div>
                     <h3>Coleta automatica</h3>
                     <p>Precos coletados via API e web scraping respeitando robots.txt</p>
                   </div>
                   <div className="feature-card">
-                    <div className="feature-icon">
-                      <span></span>
-                    </div>
                     <h3>Historico completo</h3>
                     <p>Visualize a evolucao de precos ao longo do tempo</p>
                   </div>
                   <div className="feature-card">
-                    <div className="feature-icon">
-                      <span></span>
-                    </div>
                     <h3>Multi-fontes</h3>
                     <p>Dados de Kabum, Amazon BR e Kiwi.com em um so lugar</p>
                   </div>
@@ -214,7 +202,6 @@ function App() {
         <div className="footer-inner">
           <div className="footer-content">
             <div className="footer-brand">
-              <span className="logo-icon"></span>
               <span className="logo-text">FoundSpark</span>
               <p className="footer-tagline">Rastreador de precos para o Brasil</p>
             </div>
