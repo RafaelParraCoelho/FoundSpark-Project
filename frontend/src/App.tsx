@@ -116,14 +116,28 @@ function App() {
         ) : (
           <>
             <section className="hero">
-              <div className="hero-content">
-                <h1 className="hero-title">
-                  Encontre os <span className="hero-highlight">melhores precos</span> do Brasil
-                </h1>
-                <p className="hero-subtitle">
-                  Rastreamos precos em tempo real para voce nunca mais pagar caro.
-                </p>
-                <a href="#produtos" className="hero-cta">Ver produtos monitorados</a>
+              <div className="hero-inner">
+                <div className="hero-content">
+                  <h1 className="hero-title">
+                    Encontre os <span className="hero-highlight">melhores precos</span> do Brasil
+                  </h1>
+                  <p className="hero-subtitle">
+                    Rastreamos precos em tempo real para voce nunca mais pagar caro. 
+                    Acompanhe historico, receba alertas e compre inteligente.
+                  </p>
+                  <a href="#produtos" className="hero-cta">Ver produtos monitorados</a>
+                </div>
+                <div className="hero-visual">
+                  <div className="hero-graphic">
+                    <div className="hero-circle"></div>
+                    <div className="hero-circle-inner"></div>
+                    <div className="hero-dot"></div>
+                    <div className="hero-dot"></div>
+                    <div className="hero-dot"></div>
+                    <div className="hero-line"></div>
+                    <div className="hero-line"></div>
+                  </div>
+                </div>
               </div>
             </section>
 
