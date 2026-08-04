@@ -94,7 +94,7 @@ function App() {
     <div className="app">
       <Navbar scrolled={scrolled} mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />
 
-      <main className="main">
+    <main className="main">
         {selectedProduct ? (
           <ProductDetail product={selectedProduct} onBack={handleBack} />
         ) : (
